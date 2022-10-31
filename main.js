@@ -25,7 +25,7 @@ function signin(id,pwd,name){
       console.log("error occur!!\n");
       err;
     }
-    var sql = `INSERT INTO login (ID,PWD,NAME) VALUES('${id}','${pwd}','${name}',NOW())`;
+    var sql = `INSERT INTO login_app (ID,PWD,NICKNAME,CREATED) VALUES('${id}','${pwd}','${name}',NOW())`;
     database.query(sql,function(){
       console.log("succes to signin");
     });

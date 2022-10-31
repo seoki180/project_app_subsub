@@ -6,6 +6,7 @@ var url = require('url');
 var cookie = require('cookie');
 var template = require('./template.js');
 var path = require('path');
+
 var database = db.createConnection({
     host : 'localhost',
     user : 'root',
@@ -13,7 +14,18 @@ var database = db.createConnection({
     database : 'seoki'
 });
 
-database.connect();
+database.connect(function(err){
+    if(err)throw err;
+    console.log("connect\n");
+    var id = 'sally';
+    var pwd = '1234';
+    var name = 'sally';
+    var sql = `INSERT INTO login_app(ID,PWD,NICKNAME,CREATED) VALUES("${id}","${pwd}","${name}",NOW())`;
+    database.query(sql,function(err,result){
+        if(err) throw err;
+        console.log("success to recode\n");
+    });
+});
 
 var app = http.createServer(function(req,res){
     var _url = req.url;
@@ -39,7 +51,3 @@ var app = http.createServer(function(req,res){
 app.listen(4000,function(){
     console.log("hello server;")
 });
-
-
-
-
