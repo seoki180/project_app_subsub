@@ -7,7 +7,7 @@ var template = require('./template.js');
 var path = require('path');
 var mysql = require('mysql');
 
-var database = mysql.createConnection({
+var db = mysql.createConnection({
   host : 'localhost',
   user : 'root',
   password : '1111',
@@ -15,21 +15,22 @@ var database = mysql.createConnection({
 });  
 // database 버전관리
 
+db.connect(function(err){
+  if(err){
+    console.log("error occur!!\n");
+    throw err;
+  }
+});
 
-database.connect();
-//database 를 nodejs server에 연결
 
-function signin(id,pwd,name){
-  database.connect(function(err){
-    if(err){
-      console.log("error occur!!\n");
-      err;
-    }
-    var sql = `INSERT INTO login_app (ID,PWD,NICKNAME,CREATED) VALUES('${id}','${pwd}','${name}',NOW())`;
-    database.query(sql,function(){
-      console.log("succes to signin");
+function signin(req,res){
+    console.log(req.input_id);
+    var sql = `INSERT INTO login (ID,PWD,NICKNAME,CREATED) VALUES('${req.id}','${req.pwd}','${req.name}',NOW())`;
+    db.query(sql,function(err,result){
+      if(err) throw err;
+      console.log("successfuly to signin");
+      console.log(result);
     });
-  });
 }
 //회원가입 function 설정
 
@@ -125,21 +126,22 @@ var app = http.createServer(function(req,res){
     }
     else if(pathname == "/signin"){
       var title = "SIGN IN Wellcome";
-      var body = `<h3>Wellcome</h3>
+      var body = 
+      `<h3>Wellcome</h3>
       <form action = "/signin_process" method = "post">
       <p><input type = "text" placeholder = "UserID" name = "input_id"></p>
       <p><input type = "text" placeholder = "UserPASSWORD" name = "input_pwd"></p>
+      <p><input type = "text" placeholder = "Username" name = "input_nickname"></p>
       <button type = "submit">회원가입</button>
       </form>`;
       var html = template.HTML(title,body);
-      
+
       res.end(html);
     }
     
     else if(pathname === "/signin_process"){
+      var post = qs.parse(body);
       
-      var post = qs.parse('body');
-      signin(post.input_id,post.input_pwd,"seoki");
       req.on('data',function(data){
         body += data;
       });
@@ -163,5 +165,6 @@ app.listen(3000,function(){
   console.log(` 
   =======================
   success to open server!
-  =======================`)
+  =======================
+  `)
 });
