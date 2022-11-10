@@ -10,6 +10,7 @@ module.exports = {
       <body>
         <h1>${title}</h1>
         ${body}
+         
       </body>
       </html>
       `;
