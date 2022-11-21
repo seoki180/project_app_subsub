@@ -19,6 +19,19 @@ db.connect(function(err){
   console.log("db connected\n");
 })
 
+function isAuth(username,password){
+  db.query('SELECT * FROM login_app WHERE ID = ? AND PWD = ?', [username, password], function(error, results) {
+      if (error) throw error;
+      if (results.length > 0) {       // db에서의 반환값이 있으면 로그인 성공
+        console.log("sucess")          
+        return true;
+      } 
+      else {              
+        console.log("fail")          
+        return false;
+      }            
+  }); 
+}
 function insertionData(title,contents,author){
     var sql = `INSERT INTO post_app(TITLE,CONTENTS,AUTHOR,CREATED) VALUES('${title}','${contents}','${author}',NOW())`;
     db.query(sql,function(err,result){
@@ -44,9 +57,9 @@ var app = http.createServer(function(req,res){
   if(pathname === '/'){
     var title = "Main";
     var body  = `
-    <form action = "login_process" method = "post">
+    <form action = "http://localhost:3000/login_process" method = "post">
     <h3>HELLO</h3>
-    <p><input type = "text" placeholder = "Enter ID" name = "ID"></p>
+    <p><input type = "text" placeholder = "Enter ID" name = "id"></p>
     <p><input type = "password" placeholder="Enter Password" name = "pwd"></p>
     <p><button type = "submit">Login</button></p>
     <p><a href = "/signin"> 회원가입</a></p>
@@ -59,35 +72,38 @@ var app = http.createServer(function(req,res){
   }
   
   else if(pathname === '/login_process'){ 
-    var auth = false;
-    var title;
-    req.on('data',function(data){
-      body += data;
-    });
-    req.on('end',function(){
-      var post = qs.parse(body);
-      console.log(post);
-      console.log(post.undefinedID, post.pwd);
-      
-      auth = authIsOwner(req,res);
-      if(auth){  //success to login
-        title = "SUCCESS";
-        body = 
-        `<h3>Wellcome</h3>
-        <form action = "/logout_process" method = "post">
-        <button type = "submit">logout</button>
-        </form>`;
-        var html = template.HTML(title,body);
-        res.writeHead(200);
-        res.end(html);
-      }
-      else{
-        res.end("fail");
-      }
-    });
-
+      var title;
+      var body = '';
+      req.on('data',function(data){
+        body += data;
+      });
+      req.on('end',function(){
+        var post = qs.parse(body);
+        var Id = post.id;
+        var Pwd = post.pwd;
+        console.log(Id,Pwd);
+        db.query('SELECT * FROM login_app WHERE ID = ? AND PWD = ?', [Id,Pwd], function(error, results) {
+          if (error) throw error;
+          if (results.length > 0) {       // db에서의 반환값이 있으면 로그인 성공
+            title = "SUCCESS";
+            body = 
+            `<h3>Wellcome</h3>
+            <form action = "/logout_process" method = "post">
+            <button type = "submit">logout</button>
+            </form>`;
+            var html = template.HTML(title,body);
+            res.writeHead(200);
+            res.end(html);
+          }
+          else{
+            res.end("fail");
+          }
+        });
+      });
     }
-    else if(pathname === "/logout_process"){
+      
+
+  else if(pathname === "/logout_process"){
       console.log("try to log out");
       var body = '';
       req.on('data', function(data){
@@ -103,7 +119,7 @@ var app = http.createServer(function(req,res){
         });
         res.end();
       }); 
-    }
+  }
 
     else if(pathname == "/signin"){
       var title = "SIGN IN Wellcome";
@@ -176,14 +192,12 @@ var app = http.createServer(function(req,res){
 
 
 
+
 app.listen(3000,function(){
 
   console.log(` 
   =======================
   success to open server!
   =======================
-  `)
+  `);
 });
-
-
-add feafsda
