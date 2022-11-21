@@ -19,19 +19,6 @@ db.connect(function(err){
   console.log("db connected\n");
 })
 
-function isAuth(username,password){
-  db.query('SELECT * FROM login_app WHERE ID = ? AND PWD = ?', [username, password], function(error, results) {
-      if (error) throw error;
-      if (results.length > 0) {       // db에서의 반환값이 있으면 로그인 성공
-        console.log("sucess")          
-        return true;
-      } 
-      else {              
-        console.log("fail")          
-        return false;
-      }            
-  }); 
-}
 function insertionData(title,contents,author){
     var sql = `INSERT INTO post_app(TITLE,CONTENTS,AUTHOR,CREATED) VALUES('${title}','${contents}','${author}',NOW())`;
     db.query(sql,function(err,result){
@@ -100,9 +87,8 @@ var app = http.createServer(function(req,res){
           }
         });
       });
-    }
+  }
       
-
   else if(pathname === "/logout_process"){
       console.log("try to log out");
       var body = '';
@@ -121,21 +107,21 @@ var app = http.createServer(function(req,res){
       }); 
   }
 
-    else if(pathname == "/signin"){
-      var title = "SIGN IN Wellcome";
-      var body = 
-      `<h3>Wellcome</h3>
-      <form action = "http://localhost:3000/signin_process" method ="post">
-      <p><input type = "text" placeholder = "UserID" name = "id"></p>
-      <p><input type = "password" placeholder = "UserPASSWORD" name = "pwd"></p>
-      <p><input type = "text" placeholder = "Username" name = "nickname"></p>
-      <button type = "submit">회원가입</button>
-      </form>`;
-      var html = template.HTML(title,body);
-      res.end(html);
-    }
+  else if(pathname == "/signin"){
+    var title = "SIGN IN Wellcome";
+    var body = 
+    `<h3>Wellcome</h3>
+    <form action = "http://localhost:3000/signin_process" method ="post">
+    <p><input type = "text" placeholder = "UserID" name = "id"></p>
+    <p><input type = "password" placeholder = "UserPASSWORD" name = "pwd"></p>
+    <p><input type = "text" placeholder = "Username" name = "nickname"></p>
+    <button type = "submit">회원가입</button>
+    </form>`;
+    var html = template.HTML(title,body);
+    res.end(html);
+  }
     
-    else if(pathname === "/signin_process"){
+  else if(pathname === "/signin_process"){
       var body = '';
       req.on('data', function(data){
         body = body + data;
@@ -153,6 +139,7 @@ var app = http.createServer(function(req,res){
         {Location : '/'});
       res.end();
   }
+
   else if(pathname === "/creat"){
       var tilte = "글 생성";
       var body = `
@@ -167,6 +154,7 @@ var app = http.createServer(function(req,res){
       res.writeHead(200);
       res.end(html);
   }
+
   else if(pathname === '/creat_process'){
     var body = '';
     req.on('data', function(data){ //data를 수신할때마다 callback을 호출하라
@@ -183,7 +171,7 @@ var app = http.createServer(function(req,res){
     res.writeHead(200);
     res.end("success");  
   }
-
+  
   else {
     res.writeHead(404);
     res.end('Not found');
